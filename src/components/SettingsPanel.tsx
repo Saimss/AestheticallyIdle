@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { ClockFormat, Theme } from "../types";
+import type { ClockFormat } from "../types";
 import { Music } from "lucide-react";
 import { Play } from "lucide-react";
 

@@ -4,7 +4,7 @@ import { Volume2, VolumeX } from 'lucide-react'
 export default function MusicPlayer({ src }: { src: string | null }) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isMuted, setIsMuted] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [  ,setError] = useState<string | null>(null);
 
   useEffect(() => {
     const audio = audioRef.current;
