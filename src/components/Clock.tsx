@@ -10,6 +10,7 @@ interface ClockProps {
 
 export default function Clock({ time, format, showSeconds,}: ClockProps) {
     function formatTime() {
+    const rawhours = time.getHours();
     const hours = format === '12hr' ? time.getHours() % 12 || 12 : time.getHours();
     const minutes = time.getMinutes();
     const seconds = time.getSeconds();
@@ -17,7 +18,7 @@ export default function Clock({ time, format, showSeconds,}: ClockProps) {
     
 
     if (format === '12hr') {
-            const period = hours >= 12 ? 'PM' : 'AM';
+            const period = rawhours >= 12 ? 'PM' : 'AM';
             const displayHours = hours % 12 || 12;
             const timeString = `${displayHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
             const secondsString = showSeconds ? `:${seconds.toString().padStart(2, '0')}` : '';
