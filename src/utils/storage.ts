@@ -4,7 +4,7 @@ const STORAGE_KEY = 'aesthetically_idle_preferences';
 
 const defaultPreferences: Preferences = {
     clockFormat: '12hr',
-    theme: 'light',
+    theme: 'Forest',
     showSeconds: true,
 };
 

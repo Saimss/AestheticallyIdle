@@ -1,21 +1,29 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Settings, X, Palette } from 'lucide-react'
 import Clock from './components/Clock.tsx'
 import SettingsPanel from './components/SettingsPanel.tsx'
-import ThemesFontsPanel from './components/FontsThemes.tsx'
+import {ThemesFontsPanel} from './components/FontsThemes.tsx'
 import type { ClockFormat, Theme } from './types'
 import { getStoredPreferences, storePreferences } from './utils/storage'
-import Snowfall from 'react-snowfall'
 import MusicPlayer from './components/MusicPlayer.tsx'
+import { themes, fonts } from './components/FontsThemes.tsx'
+
+
+
 
 function App() {
     const [currenttime, setCurrentTime] = useState<Date>(new Date());
     const [showSettings, setShowSettings] = useState<boolean>(false);
     const [showThemes, setShowThemes] = useState<boolean>(false);
     const [clockFormat, setClockFormat] = useState<ClockFormat>('12hr');
-    const [theme, setTheme] = useState<Theme>('dark');
+    const [theme, setTheme] = useState<Theme>('Forest');
     const [showSeconds, setShowSeconds] = useState<boolean>(true);
-    const [musicUrl, setMusicUrl] = useState<string | null>(null); 
+    const [musicUrl, setMusicUrl] = useState<string | null>(null);
+    const bgVideoRef = useRef<HTMLVideoElement>(null);
+    const currentArtist = themes.find(t => t.value === theme)?.artist;
+    const [font, setFont] = useState('inter');
+    const selectedFontFamily = fonts.find(f => f.value === font)?.family ?? 'sans-serif';
+
     useEffect(() => {
         const preferences = getStoredPreferences();
         setClockFormat(preferences.clockFormat);
@@ -34,21 +42,36 @@ function App() {
         storePreferences({ clockFormat, theme, showSeconds });
     }, [clockFormat, theme, showSeconds]);
 
-    const themes = {
-        light: 'bg-[linear-gradient(90deg,rgba(237,214,192,1)_0%,rgba(224,203,186,1)_41%,rgba(247,210,158,1)_80%)] text-black',
-        dark: 'bg-gray-900 text-gray-100',
-        minimal: 'bg-[linear-gradient(90deg,rgba(240,198,175,1)_0%,rgba(240,204,168,1)_95%)] text-gray-900',
-        ocean: 'bg-blue-900 text-blue-100',
-        winter: 'bg-[linear-gradient(90deg,rgba(66,66,201,1)_0%,rgba(87,150,199,1)_44%,rgba(113,161,208,1)_71%,rgba(101,83,237,1)_100%)] text-white',
-        spring: 'bg-[linear-gradient(90deg,rgba(245,221,184,1)_0%,rgba(194,134,194,1)_41%,rgba(250,157,208,1)_100%)] text-green-900',
-    };
+
+     useEffect(() => {
+        const video = bgVideoRef.current;
+        if (!video) return;
+        video.style.opacity = '0';
+        video.src = `/${theme}.mp4`;
+        video.load();
+        video.play().then(() => {
+            video.style.opacity = '1';
+        });
+    }, [theme]);
+
 
     return (
-        <div className={`min-h-screen flex items-center justify-center transition-all duration-500 ${themes[theme]}`}>
-            {theme === 'winter' && <Snowfall />}
-            {theme === 'spring' && <Snowfall />}
-            <Clock time={currenttime} format={clockFormat} showSeconds={showSeconds} />
+        <div className="relative min-h-screen flex items-center justify-center overflow-hidden text-white">
 
+            <video
+                ref={bgVideoRef}
+                src={`/${theme}.mp4`}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
+                style={{ zIndex: 0 }}
+            />
+
+            <div style={{zIndex: 10, fontFamily: selectedFontFamily}} className="fixed bottom-6 left-6 z-50 text-white/70 text-sm">
+              <Clock time={currenttime} format={clockFormat} showSeconds={showSeconds} />
+            </div>
             
             <button
                 onClick={() => { setShowSettings(!showSettings); setShowThemes(false); }}
@@ -77,9 +100,14 @@ function App() {
                 <ThemesFontsPanel
                     theme={theme}
                     onThemeChange={setTheme}
+                    font= {font}
+                    onFontChange={setFont}
                 />
             )}
 
+           <div className="fixed top-4 left-4 z-50 text-white/70 text-sm">
+                Credits: {currentArtist}
+            </div>
             <MusicPlayer src={musicUrl} />
         </div>
     )
